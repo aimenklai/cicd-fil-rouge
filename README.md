@@ -81,3 +81,14 @@ $ git push origin main
 error: failed to push some refs to 'https://github.com/aimenklai/cicd-fil-rouge.git'
 ```
 
+![Capture du push refusé sur main](docs/images/push-refuse-main.png)
+
+### Preuve de la CI et de l'approbation requise (Pull Request)
+
+Lors de l'ouverture de la Pull Request sur la branche `feat/ci-pipeline` :
+- Le pipeline CI GitHub Actions exécute automatiquement les jobs **Lint (Ruff)**, **Tests (Pytest)** et **Build Docker**.
+- La fusion reste bloquée tant qu'au moins 1 membre du binôme n'a pas validé la revue de code (*Review required*).
+
+![Exécution du pipeline CI et review obligatoire](docs/images/pr-ci-checks.png)
+
+
