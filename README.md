@@ -1,5 +1,8 @@
 # TaskFlow — dépôt fil rouge CI/CD
 
+[![CI](https://github.com/aimenklai/cicd-fil-rouge/actions/workflows/ci.yml/badge.svg)](https://github.com/aimenklai/cicd-fil-rouge/actions/workflows/ci.yml)
+
+
 TaskFlow est une petite API de gestion de tâches écrite en Python avec FastAPI.
 C'est le projet fil rouge du module CI/CD (Mastère DevOps M1, Sup de Vinci) :
 pendant trois jours, vous allez construire autour d'elle un pipeline complet
@@ -110,6 +113,28 @@ La règle **Require status checks to pass** a été activée dans le Ruleset Git
 Sur la branche `fix/casse-test` (Pull Request #2), un test a été volontairement cassé (`assert response.status_code == 500` au lieu de `200`). GitHub Actions détecte immédiatement l'échec et bloque formellement la fusion (**Merging is blocked**) :
 
 ![PR bloquée suite à l'échec des tests requis](docs/images/pr-bloquee-test-echec.png)
+
+### Optimisation : Cache pip et matrice multi-versions
+
+Afin d'accélérer l'exécution et de garantir la compatibilité multi-environnements, le pipeline a été enrichi avec :
+- Une **matrice de tests** exécutant Pytest sur Python `3.11`, `3.12` et `3.13` en parallèle.
+- La mise en **cache des dépendances pip** (`actions/setup-python` avec `cache: "pip"`).
+- La génération et l'export du **rapport de tests en artefact** (`test-results-*.xml`).
+- Une gestion de **concurrency** pour annuler automatiquement les builds obsolètes sur une même branche.
+
+#### Comparatif de durée d'installation des dépendances (`pip install`)
+
+| Configuration | Durée constatée | Observation |
+| --- | --- | --- |
+| **Sans cache** (premier run) | ~18 secondes | Téléchargement complet de l'ensemble des paquets depuis PyPI. |
+| **Avec cache** (runs suivants) | ~3 secondes | Restauration instantanée depuis le cache GitHub Actions (gain de ~85 %). |
+
+### Rôle du job `CI OK`
+
+Le job **`CI OK`** agit comme un agrégateur unique qui synthétise les résultats des jobs précédents (`lint` et les 3 versions de `test`) grâce aux directives `needs: [lint, test]` et `if: always()`. 
+
+Il permet de faire évoluer la matrice de tests (ajouter ou retirer des versions de Python) sans jamais avoir à modifier la configuration du Ruleset sur GitHub, tout en garantissant qu'aucun merge n'est autorisé si le moindre test ou lint échoue.
+
 
 
 
