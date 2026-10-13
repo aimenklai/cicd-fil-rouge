@@ -129,11 +129,30 @@ Afin d'accélérer l'exécution et de garantir la compatibilité multi-environne
 | **Sans cache** (premier run) | ~18 secondes | Téléchargement complet de l'ensemble des paquets depuis PyPI. |
 | **Avec cache** (runs suivants) | ~3 secondes | Restauration instantanée depuis le cache GitHub Actions (gain de ~85 %). |
 
+#### Résumé d'exécution et artefacts du pipeline
+
+Le graphe d'exécution du workflow met en évidence l'exécution en parallèle des jobs de la matrice Python, le job `CI OK` qui en dépend, et la génération des 3 artefacts :
+
+![Graphe d'exécution GitHub Actions et artefacts](docs/images/actions-summary-graph.png)
+
 ### Rôle du job `CI OK`
 
 Le job **`CI OK`** agit comme un agrégateur unique qui synthétise les résultats des jobs précédents (`lint` et les 3 versions de `test`) grâce aux directives `needs: [lint, test]` et `if: always()`. 
 
 Il permet de faire évoluer la matrice de tests (ajouter ou retirer des versions de Python) sans jamais avoir à modifier la configuration du Ruleset sur GitHub, tout en garantissant qu'aucun merge n'est autorisé si le moindre test ou lint échoue.
+
+#### Preuve du piège de la matrice (PR bloquée en attente de `Tests (Pytest)`)
+
+Avant la mise en place de `CI OK`, la PR restait bloquée indéfiniment en attente du check `Tests (Pytest)`, rendu introuvable par le renommage automatique de la matrice :
+
+![PR bloquée car le check Tests Pytest n'existe plus avec la matrice](docs/images/pr-bloquee-attente-matrice.png)
+
+#### Résolution avec `CI OK` et fusion validée
+
+Après avoir défini `CI OK` comme unique check requis dans le Ruleset, la PR a pu être approuvée par le binôme et fusionnée avec succès :
+
+![PR validée et fusionnée avec le check unique CI OK](docs/images/pr-mergee-ci-ok.png)
+
 
 
 
