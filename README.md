@@ -91,4 +91,25 @@ Lors de l'ouverture de la Pull Request sur la branche `feat/ci-pipeline` :
 
 ![Exécution du pipeline CI et review obligatoire](docs/images/pr-ci-checks.png)
 
+## Pipeline CI
+
+Le pipeline d'intégration continue est défini dans [`.github/workflows/ci.yml`](.github/workflows/ci.yml) et se déclenche automatiquement à chaque `push` et `pull_request` ciblant la branche `main`. Il est composé de 3 jobs exécutés en parallèle :
+
+- **`Lint (Ruff)`** :
+  - Analyse statique du code (linter) pour vérifier le respect des standards PEP 8 et l'absence de bugs courants (imports inutilisés, syntaxe invalide).
+  - Contrôle du formatage automatique du code (`ruff format --check .`).
+- **`Tests (Pytest)`** :
+  - Exécution de l'ensemble de la suite de tests automatisés (12 tests unitaires et d'intégration validant les endpoints `/health`, `/tasks`, la recherche et l'injection de pannes).
+- **`Build Docker`** :
+  - Validation de la compilation du Dockerfile (`docker build`) pour garantir que l'image conteneurisée se construit sans erreur avant toute livraison.
+
+### Blocage du merge en cas d'échec des tests (Status Checks obligatoires)
+
+La règle **Require status checks to pass** a été activée dans le Ruleset GitHub sur `main` en exigeant le succès des jobs **`Lint (Ruff)`** et **`Tests (Pytest)`**.
+
+Sur la branche `fix/casse-test` (Pull Request #2), un test a été volontairement cassé (`assert response.status_code == 500` au lieu de `200`). GitHub Actions détecte immédiatement l'échec et bloque formellement la fusion (**Merging is blocked**) :
+
+![PR bloquée suite à l'échec des tests requis](docs/images/pr-bloquee-test-echec.png)
+
+
 
