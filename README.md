@@ -57,10 +57,27 @@ docker run --rm -p 8000:8000 taskflow
 
 ## Équipe
 
-<!-- Lab J1 : remplacez par les noms du binôme -->
-- À compléter
+- Aimen Klai (@aimenklai)
+- Aimen Klai (Compte binôme : @aimenklaitest)
 
 ## Gouvernance du dépôt
 
-<!-- Lab J1 : listez les règles activées sur main, pourquoi chacune, et ajoutez la capture du push refusé -->
-À compléter.
+Règles configurées via GitHub Ruleset sur la branche `main` (`protect-main`) :
+
+1. **Restrict deletions** : Empêche la suppression accidentelle ou non autorisée de la branche `main`.
+2. **Block force pushes** : Interdit les commandes `git push --force` qui écrasent et détruisent l'historique partagé du dépôt.
+3. **Require a pull request before merging** : Interdit tout push direct sur `main` et impose l'ouverture d'une Pull Request pour toute modification.
+4. **Required review approvals (1)** : Impose qu'au moins un collaborateur (le binôme) révise et approuve la Pull Request avant de pouvoir fusionner le code.
+
+### Preuve du refus de push direct sur `main`
+
+Lors d'une tentative de push direct sur `main` (`git push origin main`), GitHub rejette l'opération :
+
+```text
+$ git commit --allow-empty -m "test: tentative de push direct sur main"
+[main efb4d93] test: tentative de push direct sur main
+$ git push origin main
+ ! [remote rejected] main -> main (push declined due to repository rule violations)
+error: failed to push some refs to 'https://github.com/aimenklai/cicd-fil-rouge.git'
+```
+
